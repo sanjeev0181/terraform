@@ -1,0 +1,26 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+
+}
+
+
+# creating multipe instances in one region
+resource "aws_instance" "instance" {
+  ami           = "ami-0557a15b87f6559cf"
+  instance_type = "t2.micro"
+  count         = 3
+
+  tags = {
+    Name = "instance-${count.index + 1}"
+  }
+}
