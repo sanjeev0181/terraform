@@ -21,15 +21,15 @@ resource "aws_instance" "test" {
   key_name      = "id_rsa.pub"
   # adding the security group to instance
 
-  vpc_security_group_ids = [aws_security_group.allow_tls.id]
+  vpc_security_group_ids = [aws_security_group.allow_tls_1.id]
   tags = {
     Name = "instance-tf-1"
   }
 }
 
 # creating security group
-resource "aws_security_group" "allow_tls" {
-  name = "allow_tls"
+resource "aws_security_group" "allow_tls_1" {
+  name = "allow_tls_1"
 
   description = "Allow TLS inbound traffic"
   # vpc_id      = aws_vpc.main.id
@@ -59,33 +59,33 @@ resource "aws_security_group" "allow_tls" {
 #making ssh connection
 resource "aws_key_pair" "deployer" {
   key_name   = "id_rsa.pub"
-  public_key = file("~/.ssh/id_rsa.pub")
+  public_key = file("/home/ubuntu/.ssh/id_rsa.pub")
 }
 
 
 #creating s3 bucket in aws
 
-resource "aws_s3_bucket" "first"{
-    bucket = "simple-tf-b.0.1"
+resource "aws_s3_bucket" "first" {
+  bucket = "simple-tf-b.0.1"
 
 }
 
 #uploding the files to s3-buckets
 
-resource "aws_s3_bucket_object" "buckets_s3v"{
-    bucket = aws_s3_bucket.first.id
-    key = "terraform.tfstate"
-    source ="/home/ubuntu/terraform-practise/terraform.tfstate"
+resource "aws_s3_bucket_object" "buckets_s3v" {
+  bucket = aws_s3_bucket.first.id
+  key    = "terraform.tfstate"
+  source = "/home/ubuntu/terraform-practise/terraform.tfstate"
 
 }
 
 # uploding multiple files
 
-resource "aws_s3_bucket_object" "multiples3files"{
-   bucket =aws_s3_bucket.first.id
-   for_each=fileset("/home/ubuntu/tf-dummy-files","*")
-   key = each.value
-   source ="/home/ubuntu/tf-dummy-files/${each.value}"
+resource "aws_s3_bucket_object" "multiples3files" {
+  bucket   = aws_s3_bucket.first.id
+  for_each = fileset("/home/ubuntu/terraform-practise/tf-dummy-files", "*")
+  key      = each.value
+  source   = "/home/ubuntu/terraform-practise/tf-dummy-files/${each.value}"
 }
 /*#creating key-pair using tf script
 
