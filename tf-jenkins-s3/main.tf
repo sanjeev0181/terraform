@@ -15,10 +15,9 @@ provider "aws" {
 }
 
 
-
-# creating security group
-resource "aws_security_group" "tf-jenkins-s3-allow_tls" {
-  name = "tf-jenkins-s3-allow_tls"
+# creating secruity groups
+resource "aws_security_group" "tf-jenkins-s3-allow_tls-01" {
+  name = "tf-jenkins-s3-allow_tls-01"
 
   description = "Allow ACCESS ON PORTS 8080 AND 22"
   # vpc_id      = aws_vpc.main.id
@@ -50,22 +49,7 @@ resource "aws_security_group" "tf-jenkins-s3-allow_tls" {
   }
 
   tags = {
-    Name = "allow_tls-jenkins"
-  }
-}
-
-
-
-# creating instance
-resource "aws_instance" "tf-jenkins-s3" {
-  ami           = "ami-0557a15b87f6559cf"
-  instance_type = "t2.micro"
-  key_name      = "id_rsa_tf_jenkins_s3.pub"
-  # adding the security group to instance
-
-  vpc_security_group_ids = [aws_security_group.tf-jenkins-s3-allow_tls.id]
-  tags = {
-    Name = "tf-jenkins-s3"
+    Name = "tf_jenkins_s3_security"
   }
 }
 
@@ -75,26 +59,38 @@ resource "aws_key_pair" "tf-jenkins" {
   public_key = file("/home/ubuntu/.ssh/id_rsa.pub")
 }
 
-resource "null_resource" "tf-jenkins" {
-  # ssh into the ec2 instance
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file("/home/ubuntu/terraform-practise/tf_jenkins_s3/privatekey/mainkey.pem")
-    host        = aws_instance.tf-jenkins-s3.public_ip
+# creating instance
+resource "aws_instance" "tf-jenkins-s3" {
+  ami           = "ami-0557a15b87f6559cf"
+  instance_type = "t2.micro"
+  key_name      = "id_rsa_tf_jenkins_s3.pub"
+  # adding the security group to instance
+
+  vpc_security_group_ids = [aws_security_group.tf-jenkins-s3-allow_tls-01.id]
+  tags = {
+    Name = "jenkins-server"
   }
-  #setting permissions and runs jenkins-installation.sh file
   provisioner "remote-exec" {
     inline = [
-      "sudo chmod 400 /home/ubuntu/terraform-practise/tf_jenkins_s3/privatekey/mainkey.pem",
-      "sudo chmod +x /home/ubuntu/terraform-practise/tf_jenkins_s3/jenkins-installation.sh",
-      "sh /home/ubuntu/terraform-practise/tf_jenkins_s3/jenkins-installation.sh",
+      "sudo apt-get update -y",
+      "sudo apt-get install openjdk-8-jdk -y",
+      "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -",
+      "sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
+      "sudo apt-get update -y",
+      "sudo apt upgrade -y",
+      "sudo apt-get install jenkins -y",
+      "sudo apt install git -y",
+      "sudo systemctl enable jenkins",
+      "sudo systemctl start jenkins",
+      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
     ]
   }
-}
-
-#print the url of the jenkins server
-output "website_url" {
-  value = join("", ["http://", aws_instance.tf-jenkins-s3.public_dns, ":", "8080"])
+  connection {
+    type = "ssh"
+    #host        = "aws_instance.tf-jenkins-s3.public_ip"
+    host        = "self.public_ip"
+    user        = "ubuntu"
+    private_key = file("/home/ubuntu/terraform-practise/tf_jenkins_s3/privatekey/mainkey.pem")
+  }
 }
 
