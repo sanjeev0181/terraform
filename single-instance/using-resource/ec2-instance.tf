@@ -20,6 +20,8 @@ resource "aws_instance" "ec2-instance" {
   instance_type = "t2.micro"
   # adding the security group to instance
   vpc_security_group_ids = [aws_security_group.allowing_sg.id]
+  # adding key-pair 
+  key_name      = "n.v-cnv"
   tags = {
     Name = "ec2-instance-tf-1"
   }
