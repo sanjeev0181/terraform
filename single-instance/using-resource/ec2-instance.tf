@@ -18,6 +18,8 @@ provider "aws" {
 resource "aws_instance" "ec2-instance" {
   ami           = "ami-0557a15b87f6559cf"
   instance_type = "t2.micro"
+  # adding the security group to instance
+  vpc_security_group_ids = [aws_security_group.allowing_sg.id]
   tags = {
     Name = "ec2-instance-tf-1"
   }
