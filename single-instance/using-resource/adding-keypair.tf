@@ -2,6 +2,6 @@
 
 #making ssh connection
 resource "aws_key_pair" "deployer" {
-  key_name   = "n.v_key"
+  key_name   = "n.v.pem"
   public_key = file("/home/ubuntu/terraform/terraform/single-instance/using-resource//private_key/n.v-cnv.pem")
 }
