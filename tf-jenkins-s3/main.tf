@@ -10,7 +10,7 @@ terraform {
 
 # Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-south-1"
 
 }
 
@@ -61,7 +61,7 @@ resource "aws_key_pair" "tf-jenkins" {
 
 # creating instance
 resource "aws_instance" "tf-jenkins-s3" {
-  ami           = "ami-0557a15b87f6559cf"
+  ami           = "ami-0f8ca728008ff5af4"
   instance_type = "t2.micro"
   key_name      = "id_rsa_tf_jenkins_s3.pub"
   # adding the security group to instance
