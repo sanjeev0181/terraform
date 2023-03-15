@@ -20,6 +20,13 @@ resource "aws_instance" "ec2-instance" {
   instance_type = "t2.micro"
   # adding the security group to instance
   vpc_security_group_ids = [aws_security_group.allowing_sg.id]
+
+  #sending some data using user-data 
+  user_data     = <<EOF
+                  #!/bin/bash
+                  echo "Hello, World!" > /tmp/hello.txt
+                  EOF
+
   # adding key-pair 
   key_name      = "id_rsa.pub"
   tags = {
