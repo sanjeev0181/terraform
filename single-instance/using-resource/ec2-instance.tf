@@ -22,7 +22,13 @@ resource "aws_instance" "ec2-instance" {
   vpc_security_group_ids = [aws_security_group.allowing_sg.id]
 
   #sending some data using user-data 
-  user_data = "${file("hi.sh")}"
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y nginx
+    sudo systemctl enable nginx
+    sudo systemctl start nginx
+  EOF
 
   # adding key-pair 
   key_name      = "id_rsa.pub"
