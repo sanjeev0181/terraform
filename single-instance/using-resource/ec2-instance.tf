@@ -22,7 +22,7 @@ resource "aws_instance" "ec2-instance" {
   vpc_security_group_ids = [aws_security_group.allowing_sg.id]
 
   #sending some data using user-data 
-  user_data     = <<EOF
+  user_data     = <<-EOF
                   #!/bin/bash
                   echo "Hello, World!" > /tmp/hello.txt
                   EOF
