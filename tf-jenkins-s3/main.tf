@@ -64,33 +64,27 @@ resource "aws_instance" "tf-jenkins-s3" {
   ami           = "ami-0f8ca728008ff5af4"
   instance_type = "t2.micro"
   key_name      = "id_rsa_tf_jenkins_s3.pub"
+
+  #installing jenkins using user-data 
+  user_data = << EOF
+		#! /bin/bash
+    sudo apt-get update -y
+    sudo apt-get install openjdk-8-jdk -y
+    wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+    sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+    sudo apt-get update -y
+    sudo apt upgrade -y
+    sudo apt-get install jenkins -y
+    sudo systemctl enable jenkins
+    sudo systemctl start jenkins
+    sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+	EOF
+
   # adding the security group to instance
 
   vpc_security_group_ids = [aws_security_group.tf-jenkins-s3-allow_tls-01.id]
   tags = {
     Name = "jenkins-server"
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update -y",
-      "sudo apt-get install openjdk-8-jdk -y",
-      "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -",
-      "sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
-      "sudo apt-get update -y",
-      "sudo apt upgrade -y",
-      "sudo apt-get install jenkins -y",
-      "sudo apt install git -y",
-      "sudo systemctl enable jenkins",
-      "sudo systemctl start jenkins",
-      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
-    ]
-  }
-  connection {
-    type = "ssh"
-    #host        = "aws_instance.tf-jenkins-s3.public_ip"
-    host        = "self.public_ip"
-    user        = "ubuntu"
-    private_key = file("/home/ubuntu/terraform-practise/tf_jenkins_s3/privatekey/mainkey.pem")
-  }
+  } 
 }
 
