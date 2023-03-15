@@ -55,7 +55,7 @@ resource "aws_security_group" "tf-jenkins-s3-allow_tls-01" {
 
 #making ssh connection
 resource "aws_key_pair" "tf-jenkins" {
-  key_name   = "id_rsa_tf_jenkins_s3.pub"
+  key_name   = "iid_rsa.pub"
   public_key = file("/home/ubuntu/.ssh/id_rsa.pub")
 }
 
@@ -63,7 +63,7 @@ resource "aws_key_pair" "tf-jenkins" {
 resource "aws_instance" "tf-jenkins-s3" {
   ami           = "ami-0f8ca728008ff5af4"
   instance_type = "t2.micro"
-  key_name      = "id_rsa_tf_jenkins_s3.pub"
+  key_name      = "id_rsa.pub"
 
   #installing jenkins using user-data 
   user_data = << EOF
@@ -78,7 +78,7 @@ resource "aws_instance" "tf-jenkins-s3" {
               sudo systemctl enable jenkins
               sudo systemctl start jenkins
               sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-	EOF
+	      EOF
 
   # adding the security group to instance
 
