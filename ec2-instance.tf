@@ -21,7 +21,7 @@ resource "aws_instance" "app_server" {
   user_data = <<EOF
 #!/bin/bash
 sudo apt update 
-sudo apt install nginx -y
+sudo apt install nginx
 EOF
     }
 
